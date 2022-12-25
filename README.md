@@ -1,5 +1,3 @@
 # netprint
 
-PoC to get process and external ip addresse's it is communitating with
-
-Work in progress
+PoC to get desired process and external ip address it is communitating with
