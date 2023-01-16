@@ -24,7 +24,7 @@ fn get_struct_data(connections: Vec<ConnectionData>) {
         if remote_ip.is_unspecified() || remote_ip.is_loopback() {
             continue;
         }
-        println!("[+] PID: {}", conn.owning_process);
+        println!("\n[+] PID: {}", conn.owning_process);
         println!("[+] Remote Addr: {}", remote_ip.to_string());
         println!("[+] Remote Port: {}", conn.remote_port);
         println!("[+] Local Address: {}", conn.local_address);
