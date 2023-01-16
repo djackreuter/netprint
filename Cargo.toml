@@ -8,4 +8,5 @@ edition = "2021"
 [dependencies]
 wmi = "0.11.4"
 sysinfo = "0.27.1"
+clap = { version = "4.1.1", features=["derive"] }
 serde = { version = "1.0.151", features=["derive"] }

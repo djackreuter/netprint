@@ -3,6 +3,7 @@ use std::net::Ipv4Addr;
 use sysinfo::{System, SystemExt, Pid, Process, ProcessExt};
 use wmi::{WMIConnection, COMLibrary};
 use serde::Deserialize;
+use clap::Parser;
 
 
 #[derive(Deserialize, Debug)]
@@ -31,31 +32,49 @@ fn get_struct_data(connections: Vec<ConnectionData>) {
     }
 }
 
+/// Print TCP data for processes
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Name of process to search for. E.g., ir_agent.exe
+    #[arg(short, long, default_value_t = String::new())]
+    process: String
+}
+
+
 fn main() {
+
+    let args = Args::parse();
     let mut sys: System = System::new_all();
 
     sys.refresh_all();
-
-
 
     let wmi_conn: WMIConnection = WMIConnection::with_namespace_path("ROOT\\StandardCIMv2", COMLibrary::new().unwrap()).unwrap();
 
     let results: Vec<ConnectionData> = wmi_conn.query().unwrap();
     let mut conn_vec: Vec<ConnectionData> = Vec::new();
 
-    println!("{0: <10} | {1: <10} | {2: <15} | {3: <10} | {4: <15} | {5: <10}",
+    println!("{0: <25} | {1: <10} | {2: <25} | {3: <10} | {4: <25} | {5: <10}",
     "Process Name", "PID", "Local Address", "Local Port", "Remote Address ", "Remote Port");
     for data in results {
         let pid: usize = data.owning_process as usize;
         let process: &Process = sys.process(Pid::from(pid)).unwrap();
 
         // get process name from the pid's.
-        if process.name().to_lowercase() == "ir_agent.exe" {
-            println!("{0: <10} | {1: <10} | {2: <15} | {3: <10} | {4: <15} | {5: <10}",
+        if args.process != "" {
+            if process.name().to_lowercase() == args.process.to_lowercase() {
+                println!("{0: <25} | {1: <10} | {2: <25} | {3: <10} | {4: <25} | {5: <10}",
+                    process.name(), data.owning_process, data.local_address, data.local_port, data.remote_address, data.remote_port
+                );
+                conn_vec.push(data);
+            }
+        } else {
+                println!("{0: <25} | {1: <10} | {2: <25} | {3: <10} | {4: <25} | {5: <10}",
                 process.name(), data.owning_process, data.local_address, data.local_port, data.remote_address, data.remote_port
             );
-            conn_vec.push(data);
         }
     }
-    get_struct_data(conn_vec);
+    if conn_vec.len() > 0 {
+        get_struct_data(conn_vec);
+    }
 }
