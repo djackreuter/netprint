@@ -1,6 +1,7 @@
 use std::net::Ipv4Addr;
 
 use sysinfo::{System, SystemExt, Pid, Process, ProcessExt};
+use windows::Win32::System::Com::CoUninitialize;
 use wmi::{WMIConnection, COMLibrary};
 use serde::Deserialize;
 use clap::Parser;
@@ -77,4 +78,6 @@ fn main() {
     if conn_vec.len() > 0 {
         get_struct_data(conn_vec);
     }
+    drop(wmi_conn);
+    unsafe { CoUninitialize() };
 }
